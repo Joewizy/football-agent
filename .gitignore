@@ -1,0 +1,28 @@
+# Secrets
+.env
+endpoints.rest
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# LangGraph checkpointer database (local conversation memory) + its WAL sidecars
+*.sqlite
+*.sqlite-*
+*-checkpoint.bin
+
+# Local Chroma vector store (rebuilt with `python -m rag.ingest_chroma`)
+rag/chroma_db/
+
+# Virtual environment
+.venv/
+venv/
+
+# IDE / OS
+.DS_Store
+.vscode/
+.idea/
+
+todo
