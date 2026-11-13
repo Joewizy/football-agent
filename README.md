@@ -116,6 +116,7 @@ services/football_api.py   Thin SportMonks HTTP client
 rag/ingest_chroma.py       Build the vector store from rag/docs/
 rag/ask_chroma.py          Embed query → retrieve nearest chunks
 server.py                  FastAPI service (/health, /chat, /chat/stream)
+eval_hook.py               Optional: sends each finished turn to an evaluation API
 config.py                  Single source of runtime config (env)
 ```
 
@@ -147,6 +148,13 @@ curl -X POST localhost:8000/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"who is the top scorer?","thread_id":"demo"}'
 ```
+
+**Optional: evaluation.** Set `EVAL_API_URL` in `.env` (for example
+`http://localhost:8000`) and every finished turn is posted to that evaluation API's
+`POST /runs`: the question, the answer, each model and tool step with its timing,
+the retrieved passages, and the agent's instructions. It runs in a background
+thread after the reply, so the agent never waits for it, and a failure is only
+logged. `EVAL_AGENT_NAME` sets the agent's name there (default `football-agent`).
 
 The SportMonks free plan covers the Scottish Premiership and Danish Superliga,
 which is what the live-data tools are scoped to.

@@ -12,6 +12,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.sqlite import SqliteSaver
 
 from config import OLLAMA_MODEL, DB_PATH
+from eval_hook import RunRecorder
 from tools.football import (
     football_countries,
     find_team,
@@ -45,6 +46,11 @@ SYSTEM_PROMPT = SystemMessage(content=(
     "For messages that aren't data requests (e.g. a user saying which team they "
     "support), reply briefly and ask what they'd like to know."
 ))
+
+# What the agent is told about itself, sent with each run so the evaluator can check self-descriptions.
+INSTRUCTIONS = SYSTEM_PROMPT.content + "\n\nTools:\n" + "\n".join(
+    f"- {t.name}: {' '.join(t.description.split())}" for t in tools
+)
 
 MODEL = OLLAMA_MODEL
 llm = ChatOllama(model=MODEL, temperature=0)
@@ -86,6 +92,7 @@ def run_events(text: str, thread_id: str) -> Iterator[dict]:
                   {"type": "token", "content": str}.
     """
     config = {"configurable": {"thread_id": thread_id}}
+    recorder = RunRecorder(text, thread_id, MODEL, INSTRUCTIONS)
 
     # "updates" gives node-level tool markers; "messages" gives per-token output.
     for mode, data in agent.stream(
@@ -94,6 +101,7 @@ def run_events(text: str, thread_id: str) -> Iterator[dict]:
         stream_mode=["updates", "messages"],
     ):
         if mode == "updates":
+            recorder.update(data)
             for node, update in data.items():
                 message = update["messages"][-1]
                 if node == "think" and getattr(message, "tool_calls", None):
@@ -104,6 +112,9 @@ def run_events(text: str, thread_id: str) -> Iterator[dict]:
             token, meta = data
             if meta.get("langgraph_node") == "think" and token.content:
                 yield {"type": "token", "content": token.content}
+
+    # The turn is complete: send it for evaluation (only if EVAL_API_URL is set).
+    recorder.finish()
 
 
 # -------------------------------------------------------------------

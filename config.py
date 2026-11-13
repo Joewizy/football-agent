@@ -14,3 +14,8 @@ FOOTBALL_API_KEY = os.getenv("FOOTBALL_API_KEY")
 DB_PATH = os.getenv("FOOTBALL_DB_PATH", os.path.join(_ROOT, "football_memory.sqlite"))
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+
+# Optional: an agent evaluation API that scores every turn (see eval_hook.py). Unset = off.
+EVAL_API_URL = os.getenv("EVAL_API_URL")
+# `or`, not a getenv default: an empty "EVAL_AGENT_NAME=" line in .env would otherwise send a blank name.
+EVAL_AGENT_NAME = os.getenv("EVAL_AGENT_NAME") or "football-agent"
