@@ -5,6 +5,20 @@ engineering end to end: tool-calling, retrieval-augmented generation (RAG),
 persistent memory, and HTTP serving — running entirely on a laptop with no cloud
 LLM calls.
 
+## Portfolio description
+
+I built a privacy-first conversational AI agent that combines live sports data
+with a grounded local knowledge base. The system uses LangGraph to route each
+question to the right tool, Chroma for retrieval-augmented generation, SQLite
+for persistent conversation memory, and FastAPI for a production-style HTTP
+interface. I designed the workflow to reduce hallucinations, keep data local,
+make tool failures explicit, and provide reliable answers through both a CLI
+and streaming API. I also added layered prompt-injection defenses and an
+evaluation harness covering direct overrides, fake authority, role-play, and
+indirect injection attempts. This project demonstrates practical experience
+building secure, efficient, and maintainable AI workflows from data ingestion
+through deployment.
+
 The agent answers two different *kinds* of question and decides for itself which
 to use:
 
